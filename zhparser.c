@@ -58,7 +58,8 @@ static scws_t scws = NULL;
 static char a[26]={'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
 static void init(){
 	char sharepath[MAXPGPATH];
-	char * dict_path,* rule_path;
+	/*增加一个用户字典路径 my_dict_path */
+	char * dict_path,* my_dict_path,* rule_path;
 
 	if (!(scws = scws_new())) {
 		ereport(ERROR,
@@ -68,11 +69,17 @@ static void init(){
 	}
 	get_share_path(my_exec_path, sharepath);
 	dict_path = palloc(MAXPGPATH);
+	/*申请内存空间*/
+        my_dict_path = palloc(MAXPGPATH); 
 
 	snprintf(dict_path, MAXPGPATH, "%s/tsearch_data/%s.%s",
 			sharepath, "dict.utf8", "xdb");
+	/*设置用户字典路径*/        
+        snprintf(my_dict_path, MAXPGPATH, "%s/tsearch_data/%s.%s",sharepath, "mydict.utf8", "txt");
 	scws_set_charset(scws, "utf-8");
 	scws_set_dict(scws,dict_path, SCWS_XDICT_XDB);
+	/*追加字典*/
+        scws_add_dict(scws,my_dict_path, SCWS_XDICT_TXT);
 
 	rule_path = palloc(MAXPGPATH);
 	snprintf(rule_path, MAXPGPATH, "%s/tsearch_data/%s.%s",
